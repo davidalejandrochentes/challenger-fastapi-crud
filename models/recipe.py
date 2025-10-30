@@ -20,3 +20,4 @@ class Recipe(Base):
 
     user = relationship("User", back_populates="recipes")
     reviews = relationship("Review", back_populates="recipe")
+    ingredients = relationship("RecipeIngredient", back_populates="recipe")
