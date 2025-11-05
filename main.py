@@ -4,7 +4,8 @@ from starlette.status import HTTP_200_OK
 from sqlalchemy import event, orm
 from sqlalchemy.orm import Session
 from models.mixins.db_mixin import SoftDeleteMixin
-from routers import auth, users
+from routers import auth, users, recipes, ingredients, reviews
+
 app = FastAPI()
 
 @app.middleware("http")
@@ -32,6 +33,9 @@ def _add_filtering_criteria(execute_state):
 
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(users.router, prefix="/users", tags=["users"])
+app.include_router(recipes.router, prefix="/recipes", tags=["recipes"])
+app.include_router(ingredients.router, prefix="/ingredients", tags=["ingredients"])
+app.include_router(reviews.router, prefix="/reviews", tags=["reviews"])
 
 @app.get("/", status_code=HTTP_200_OK)
 async def root():
