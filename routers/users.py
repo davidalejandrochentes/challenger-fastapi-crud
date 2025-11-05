@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from typing import List
+from datetime import datetime
 
 from core.database import SessionLocal
 from models.user import User
@@ -36,11 +37,21 @@ async def update_user_me(
     await db.refresh(current_user)
     return current_user
 
+@router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user_me(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    current_user.deleted_at = datetime.utcnow()
+    db.add(current_user)
+    await db.commit()
+    return {"message": "User deleted successfully"}
+
 @router.get("/{username}", response_model=UserSchema)
 async def read_user(username: str, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.username == username))
     user = result.scalars().first()
-    if user is None:
+    if user is None or user.deleted_at is not None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",

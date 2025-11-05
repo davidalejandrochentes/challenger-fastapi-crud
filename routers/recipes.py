@@ -69,7 +69,7 @@ async def read_recipes(db: AsyncSession = Depends(get_db)):
         )
     )
     recipes = result.scalars().all()
-    return recipes
+    return [recipe for recipe in recipes if recipe.user is not None]
 
 @router.get("/{recipe_id}", response_model=RecipeSchema)
 async def read_recipe(recipe_id: int, db: AsyncSession = Depends(get_db)):

@@ -4,9 +4,8 @@ FROM python:3.11-slim
 # Establecer el directorio de trabajo en el contenedor
 WORKDIR /app
 
-# Instalar dependencias del sistema necesarias, incluyendo ffmpeg
+# Instalar dependencias del sistema necesarias
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ffmpeg \
     libpq-dev \
     gcc \
     && rm -rf /var/lib/apt/lists/*
@@ -18,8 +17,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copiar la aplicación
 COPY . .
 
-# Puerto expuesto (Railway usa la variable PORT)
-EXPOSE $PORT
+# Copiar y dar permisos de ejecución al script de entrada
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
 
-# Comando para ejecutar la aplicación
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Puerto expuesto (Railway usa la variable PORT, pero 8000 es el default)
+EXPOSE 8000
+
+# Comando para ejecutar la aplicación a través del script
+CMD ["./entrypoint.sh"]

@@ -43,12 +43,12 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
 
 @router.post("/register", response_model=UserSchema)
 async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(User).where(User.email == user.email))
+    result = await db.execute(select(User).execution_options(include_deleted=True).where(User.email == user.email))
     db_user = result.scalars().first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     
-    result = await db.execute(select(User).where(User.username == user.username))
+    result = await db.execute(select(User).execution_options(include_deleted=True).where(User.username == user.username))
     db_user = result.scalars().first()
     if db_user:
         raise HTTPException(status_code=400, detail="Username already registered")

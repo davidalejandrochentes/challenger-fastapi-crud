@@ -20,7 +20,6 @@ async def create_review(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # Check if recipe exists
     result = await db.execute(select(Recipe).where(Recipe.id == review.recipe_id))
     recipe = result.scalars().first()
     if not recipe:
@@ -49,7 +48,7 @@ async def read_all_reviews(db: AsyncSession = Depends(get_db)):
         select(Review).options(selectinload(Review.user))
     )
     reviews = result.scalars().all()
-    return reviews
+    return [review for review in reviews if review.user is not None]
 
 @router.get("/recipe/{recipe_id}", response_model=List[ReviewSchema])
 async def read_reviews_for_recipe(recipe_id: int, db: AsyncSession = Depends(get_db)):
@@ -57,7 +56,7 @@ async def read_reviews_for_recipe(recipe_id: int, db: AsyncSession = Depends(get
         select(Review).options(selectinload(Review.user)).where(Review.recipe_id == recipe_id)
     )
     reviews = result.scalars().all()
-    return reviews
+    return [review for review in reviews if review.user is not None]
 
 @router.get("/{review_id}", response_model=ReviewSchema)
 async def read_review(review_id: int, db: AsyncSession = Depends(get_db)):

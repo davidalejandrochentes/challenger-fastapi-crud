@@ -16,7 +16,7 @@ class RecipeIngredientUpdate(RecipeIngredientBase):
 class RecipeIngredient(RecipeIngredientBase):
     id: int
     recipe_id: int
-    ingredient: Ingredient
+    ingredient: Optional[Ingredient] = None
 
     class Config:
         from_attributes = True

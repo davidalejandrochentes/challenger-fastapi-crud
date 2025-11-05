@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from enum import Enum
 from typing import List, Optional
 from .user import User
@@ -38,6 +38,12 @@ class Recipe(RecipeBase):
     user: User
     reviews: List[Review] = []
     ingredients: List[RecipeIngredient] = []
+
+    @validator('ingredients', pre=True, always=True)
+    def filter_deleted_ingredients(cls, v):
+        if v is None:
+            return []
+        return [item for item in v if item.ingredient is not None]
 
     class Config:
         from_attributes = True
